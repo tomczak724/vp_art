@@ -5,6 +5,7 @@ A suite of scripts designed to reduce data from the VIRUS-P spectrograph in an a
 
 
 (0a)  Indicators for reduction steps
+
         b = bias subtracted
         t = trace aligned
         c = cosmic rays removed
