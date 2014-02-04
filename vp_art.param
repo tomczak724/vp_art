@@ -1,0 +1,34 @@
+
+###  STEPS TO PERFORM (y/n):
+
+BIAS_COMBINE   y       #  Create master bias stack
+COMP_COMBINE   y       #  Create master comp stack
+FLAT_COMBINE   y       #  Create master flat stack
+BIAS_SUBTRACT  y       #  Perform bias subtraction
+FIBER_TRACE    y       #  Trace fibers 
+LAMBDA_SOLVE   y       #  Calculate wavelength solution
+COSMIC_RAYS    n       #  Generate cosmic ray masks
+SKY_SUBTRACT   n       #  Perform sky subtraction
+WRITE_SPECTRA  y       #  Write data files for spectra
+
+
+FIBERS_TOTAL	246	    #  Total number of fibers (including dead and such)
+FIBERS_EXCLUDE	1,2,3,121   #  Fibers that need to be excluded if either
+			    #  dead or off the chip. Fibers are counted
+			    #  from the bottom of the image up as 1,2,3...
+			    #  Ex: if fibers 10 & 251 are dead
+			    #      FIBERS_EXCLUDE  10,251
+
+FIBER_WIDTH	5       #  Relavent fiber width in pixels
+FIBER_SEP	8       #  Approximate fiber separation in pixels
+LO_BUFFER       8       #  Pixel-length from the bottom to ignore in fiber search in col 0
+HI_BUFFER       8       #  Pixel-length from the top to ignore in fiber search in col 0
+
+
+LINE_LIST      lines.dat  #  File containing line wavelengths for comp frames
+COMP_HEADER    OBJECT     #  Header entry designating proper comp type
+COMP_NAME      NeCd       #  Proper comp type to use
+POLYFIT_ORDER  4          #  Order of the polynomial fit for the wavelength solution
+
+CR_SCAN_DX     3          #  Number of pixels to use on either side when identifying cosmic rays
+
