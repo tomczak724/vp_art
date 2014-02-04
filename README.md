@@ -2,3 +2,114 @@ vp_art
 ======
 
 A suite of scripts designed to reduce data from the VIRUS-P spectrograph in an autonomous fashion.
+
+
+(0a)  Indicators for reduction steps
+        b = bias subtracted
+        t = trace aligned
+        c = cosmic rays removed
+        s = sky subtracted
+
+
+(0b) This code is based in python and requires these imports.
+     Version numbers are included where possible and are the
+     versions upon which the code was written and tested.
+        os
+	glob
+	numpy --- 1.5.1
+	scipy --- 0.8.0
+	pyfits --- 2.4.0
+	shutil
+	matplotlib --- 1.0.1
+	subprocess
+	astLib --- 0.4.0
+
+
+
+(1)  first the directory order...
+
+         working_dir/  --->  raw/  --->  20120920/  20120921/  20120922/
+
+     ...the date-directories must be "yyyymmdd"
+     The working_dir must have the file "TARGETS.list" which lists all the
+     the observed targets (with coordinates) over all nights.
+     It must have this format...
+
+     # name  ra  dec
+     object1  hh:mm:ss.s  (+-)dd:mm:ss.s
+     object2  hh:mm:ss.s  (+-)dd:mm:ss.s
+     ...
+
+(2)  Run the setup script with "python vp_art_setup.py"
+     It creates the appropriate directory structure...
+
+     working_dir/redux/  --->  20120920/  20120921/  20120922/
+
+     working_dir/redux/20120920/calib/
+     working_dir/redux/20120920/calib/bias/
+     working_dir/redux/20120920/calib/comp/
+     working_dir/redux/20120920/calib/flat/
+
+     working_dir/redux/20120920/object/
+     working_dir/redux/20120920/object/name1/
+     working_dir/redux/20120920/object/name2/
+
+     ###  where name* is the object name from the FIELDS.list
+     ###  NOTE: Only the targets listed in FIELDS.list will
+     ###        be considered. Others will be ignored.
+
+(3)  Run the reduction script with "python vp_art_reduce.py"
+
+(a)  Step 1 is to make master stacks
+    --> BIAS_COMBINE   y       #  Create master bias stack
+    --> COMP_COMBINE   y       #  Create master comp stack
+    --> FLAT_COMBINE   y       #  Create master flat stack
+
+
+(b)  Step 2 is to do bias-subtraction
+    --> BIAS_SUBTRACT  y       #  Perform bias subtraction
+
+(c)  Step 3 is to trace fibers. First, fibers are found from the
+     first column (leftmost) of the flat-stack and trace (rightwards).
+     Next, trace-aligning is performed where the curvature of each
+     fiber is removed, essenially "flattening" them horizontally.
+    --> FIBER_TRACE    y       #  Trace fibers 
+
+(d)  Step 4 is to calculate the wavelength solution. For this you'll
+     need a data file indicating locations of lines in the comp-lamp
+     data. 
+
+
+
+
+
+FLAT-FIELDING
+
+since we dont have "appropriate" calibration flats, we have to improvise
+a flat-fielding routine... here it is.
+
+(0) This routine requires these inputs...
+    - A master twiflat for the night
+    - An observation of a standardized target (standard star)
+    - The spectrum of the standardized target
+
+PROCESS
+
+(1) Basic reductions are run on the standard.
+
+(2) From "vp_art.param" the highest S/N fiber for each image
+is selected from the specified fiber-range. For example, if
+STD_RANGE=45,64 then the highest S/N fiber between fibers 45
+and 64 will be assumed to be the standard target.
+
+(3) These selected spectra are then median-combined (to remove
+cosmic rays) into a master standard.
+
+(4) This master is divided by the input standard spectrum to
+extract the flat-field (for the fiber).
+
+	FLATFIELD_x = (MEASURED SPECTRUM) / (KNOWN SPECTRUM)
+
+(5) This flat-field is extended to other fibers using the master
+twiflat. Since S/N is very high for each fiber in the twiflat,
+
