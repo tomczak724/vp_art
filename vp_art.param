@@ -1,7 +1,7 @@
 
 ###  STEPS TO PERFORM (y/n):
 
-BIAS_COMBINE   n       #  Create master bias stack
+BIAS_COMBINE   y       #  Create master bias stack
 COMP_COMBINE   n       #  Create master comp stack
 FLAT_COMBINE   n       #  Create master flat stack
 BIAS_SUBTRACT  n       #  Perform bias subtraction
