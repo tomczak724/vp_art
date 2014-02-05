@@ -22,7 +22,6 @@ except:
     quit()
 
 
-
 ###  These lines makes the code obsolete after 1 Jan 2100
 class rawdir:
     def __init__(self, name):
