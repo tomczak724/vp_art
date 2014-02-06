@@ -1,0 +1,4 @@
+
+alias vp_art_setup='python /Users/tomczak/pydir/vp_art/vp_art/vp_art_setup.py'
+alias vp_art_reduce='python /Users/tomczak/pydir/vp_art/vp_art/vp_art_reduce.py'
+
