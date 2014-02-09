@@ -8,19 +8,18 @@ BIAS_SUBTRACT  n       #  Perform bias subtraction
 FIBER_TRACE    n       #  Trace fibers 
 LAMBDA_SOLVE   n       #  Calculate wavelength solution
 COSMIC_RAYS    n       #  Generate cosmic ray masks
-SKY_SUBTRACT   n       #  Perform sky subtraction
 WRITE_SPECTRA  n       #  Write data files for spectra
 
 
 FIBERS_TOTAL	246	    #  Total number of fibers (including dead and such)
 FIBERS_EXCLUDE	1,2,3,121   #  Fibers that need to be excluded if either
-			    #  dead or off the chip. Fibers are counted
-			    #  from the bottom of the image up as 1,2,3...
-			    #  Ex: if fibers 10 & 251 are dead
-			    #      FIBERS_EXCLUDE  10,251
+			                #  dead or off the chip. Fibers are counted
+	            		    #  from the bottom of the image up as 1,2,3...
+			                #  Ex: if fibers 10 & 251 are dead
+			                #      FIBERS_EXCLUDE  10,251
 
-FIBER_WIDTH	5       #  Relavent fiber width in pixels
-FIBER_SEP	8       #  Approximate fiber separation in pixels
+FIBER_WIDTH 	5       #  Relavent fiber width in pixels
+FIBER_SEP	    8       #  Approximate fiber separation in pixels
 LO_BUFFER       8       #  Pixel-length from the bottom to ignore in fiber search
 HI_BUFFER       8       #  Pixel-length from the top to ignore in fiber search
 

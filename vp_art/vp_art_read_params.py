@@ -15,7 +15,6 @@ class params:
             if row[0]=='BIAS_SUBTRACT': self.BIAS_SUBTRACT = row[1]
             if row[0]=='LAMBDA_SOLVE': self.LAMBDA_SOLVE = row[1]
             if row[0]=='COSMIC_RAYS': self.COSMIC_RAYS = row[1]
-            if row[0]=='SKY_SUBTRACT': self.SKY_SUBTRACT = row[1]
             if row[0]=='WRITE_SPECTRA': self.WRITE_SPECTRA = row[1]
             
             if row[0]=='FIBERS_TOTAL': self.FIBERS_TOTAL = int(row[1])
