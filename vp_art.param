@@ -21,13 +21,13 @@ FIBERS_EXCLUDE	1,2,3,121   #  Fibers that need to be excluded if either
 
 FIBER_WIDTH	5       #  Relavent fiber width in pixels
 FIBER_SEP	8       #  Approximate fiber separation in pixels
-LO_BUFFER       8       #  Pixel-length from the bottom to ignore in fiber search in col 0
-HI_BUFFER       8       #  Pixel-length from the top to ignore in fiber search in col 0
+LO_BUFFER       8       #  Pixel-length from the bottom to ignore in fiber search
+HI_BUFFER       8       #  Pixel-length from the top to ignore in fiber search
 
 
-LINE_LIST      lines.dat  #  File containing line wavelengths for comp frames
+COMP_NAME      NeCd       #  Proper comp type to use. Currently there is only
+                          #  support for these lamps: Ar, Cd, He, Hg, Na, Ne.
 COMP_HEADER    OBJECT     #  Header entry designating proper comp type
-COMP_NAME      NeCd       #  Proper comp type to use
 POLYFIT_ORDER  4          #  Order of the polynomial fit for the wavelength solution
 
 CR_SCAN_DX     3          #  Number of pixels to use on either side when identifying cosmic rays

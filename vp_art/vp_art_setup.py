@@ -56,11 +56,11 @@ if status[0] == 256:
     if fork in ["y", "Y", "yes"]:
         print("\n\tOverwriting redux!\n")
         shu.rmtree(working_dir + "/redux")
+        os.mkdir(working_dir + "/redux/")
     else:
         print("\n\tHalting setup process!\n")
         quit()
 
-os.mkdir(working_dir + "/redux/")
 os.chdir(working_dir + "/redux/")
 for raw_dir in raw_dirs: os.mkdir(raw_dir.name)
 
@@ -86,12 +86,13 @@ for raw_dir in raw_dirs:
                     os.mkdir(raw_dir.name+"/"+target[0])
                     made_dir = True
                     targetstxt.write(target[0]+"\n")
-                os.chdir(raw_dir.name+"/"+target[0])
-                ln_cmd = "ln -s ../../../raw/"+raw_dir.name+"/"+im+" ./"
+                os.chdir(raw_dir.name + "/" + target[0])
+                ln_cmd = "ln -s " + working_dir + "/raw/" \
+                         + raw_dir.name + "/" + im + " ./"
                 sp.call( [ln_cmd], shell=True )
-                os.chdir("../../")
+                os.chdir(working_dir + '/redux/')
     targetstxt.close()
-    shu.move("targets.txt",raw_dir.name)
+    shu.move("targets.txt", raw_dir.name)
 
 
 for raw_dir in raw_dirs:
@@ -115,7 +116,7 @@ for raw_dir in raw_dirs:
     os.mkdir(raw_dir.name + "/calib/comp/")
     os.chdir(raw_dir.name + "/calib/comp/")
     for im in raw_dir.comp:
-        ln_cmd = "ln -s " + working_dir + "raw/" \
+        ln_cmd = "ln -s " + working_dir + "/raw/" \
                  + raw_dir.name + "/" + im + " ./"
         sp.call([ln_cmd], shell=True)
     os.chdir(working_dir + "/redux/")
@@ -124,7 +125,7 @@ for raw_dir in raw_dirs:
     os.mkdir(raw_dir.name + "/calib/flat/")
     os.chdir(raw_dir.name + "/calib/flat/")
     for im in raw_dir.flat:
-        ln_cmd = "ln -s " + working_dir + "raw/" \
+        ln_cmd = "ln -s " + working_dir + "/raw/" \
                  + raw_dir.name + "/" + im + " ./"
         sp.call([ln_cmd], shell=True)
     os.chdir(working_dir + "/redux/")
