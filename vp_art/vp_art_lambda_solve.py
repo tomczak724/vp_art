@@ -201,3 +201,165 @@ def calc_wavlength_soln(comp, fiber, lines_lam_x, xaxis, polyorder):
 
     return lamaxis
 
+
+
+
+
+
+def interactive_initial_guess(comp_im, trace_im, comp_names):
+
+    comp = pf.getdata(comp_im)
+    trc = pf.getdata(trace_im)
+
+    # reading in reference spectrum
+    ref_lam = np.loadtxt('/Users/tomczak/pydir/vp_art/data/spectrum_'+comp_names[0]+'.dat')[:,0]
+    ref_flux = np.zeros(len(ref_lam))
+    for comp0 in comp_names:
+        compspecdat = np.loadtxt('/Users/tomczak/pydir/vp_art/data/spectrum_'+comp0+'.dat')
+        ref_flux += compspecdat[:,1]
+    ref_spec = np.array(zip(ref_lam, ref_flux))
+
+
+    # reading in reference spectrum's line list
+    lines = []
+    for comp0 in comp_names:
+        complinesdat = np.loadtxt('/Users/tomczak/pydir/vp_art/data/lines_'+comp0+'.dat')[:,0]
+        lines += complinesdat.tolist()
+    lines.sort()
+
+
+
+    # extracting spectrum for the first fiber
+    fibnums = pl.unique(trc)
+    fibnums.sort()
+    fibnums = fibnums[pl.find(fibnums > 0)]
+
+    first_fiber_inds = pl.where(trc == fibnums[0])
+    first_fiber_spec = pl.zeros(max(first_fiber_inds[1]) + 1)
+    for y,x in zip(first_fiber_inds[0], first_fiber_inds[1]):
+        first_fiber_spec[x] += comp[y][x]
+
+    xaxis = range(max(first_fiber_inds[1])+1)
+
+    class compspec:
+
+        def __init__(self, xaxis, flux, ref_spec, ref_lines):
+            self.xaxis, self.flux = xaxis, flux
+            self.ref_spec = ref_spec
+            self.ref_lines = ref_lines
+            self.soln_data = []
+            self.counter = 0
+
+            self.fig = pl.figure(figsize=(15, 7))
+            self.sp1 = self.fig.add_subplot(211)
+            self.sp2 = self.fig.add_subplot(212)
+            self.zooms = []
+
+            self.sp1.plot(self.xaxis, self.flux/max(self.flux))
+            self.sp1.set_ylim(-0.03, 1.2)
+            self.sp1.set_title('ArcLamp Spectrum: x = identify line,  i = skip line,  z/a = zoom in/out,  r = reset')
+            self.sp1.set_xlabel('Pixel')
+
+            self.sp2.plot(self.ref_spec[:,0], self.ref_spec[:,1]/max(self.ref_spec[:,1]))
+            self.sp2.set_ylim(-0.03, 1.2)
+            x0, x1, y0, y1 = self.sp2.axis()
+            self.ytext = y0 + (y1-y0)*0.85
+            self.show_lines = [[self.sp2.axvline(self.ref_lines[0], color='r', lw=1, ls='--'),
+                                self.sp2.annotate(str(int(self.ref_lines[0]+0.5)),
+                                                  (self.ref_lines[0], self.ytext),
+                                                  rotation='vertical', size=11)]]
+            self.sp2.set_title('Reference Spectrum')
+            self.sp2.set_xlabel('Wavelength (Angstroms)')
+
+            self.fig.subplots_adjust(hspace=0.6, right=0.95)
+            self.fig.canvas.mpl_connect('key_press_event', self.key)
+            pl.show()
+
+        def key(self, event):
+            '''
+            #  x = identify line
+            #  i = skip to next line
+            #  z = zoom in
+            #  a = zoom out
+            #  r = reset
+            '''
+            k = event.key
+            x = event.xdata
+            y = event.ydata
+            sp = event.inaxes
+
+            if k == 'x' and sp.get_subplotspec() == self.sp1.get_subplotspec():
+                self.sp1.axvline(x, color='r', lw=1)
+                self.show_lines[self.counter][0].set_ls('-')
+                self.counter += 1
+                if self.counter == len(self.ref_lines):
+                    self.sp1.text(0.35, 0.35, "\n  Complete: close  \n     this window \n",
+                                  transform=self.sp1.transAxes, size=22, bbox=dict(fc='w'))
+                    self.sp2.text(0.35, 0.35, "\n  Complete: close  \n     this window \n",
+                                  transform=self.sp2.transAxes, size=22, bbox=dict(fc='w'))
+                    pl.savetxt('initial_lambda_soln.dat', self.soln_data)
+                else:
+                    self.soln_data.append([self.ref_lines[self.counter], x])
+                    self.show_lines.append([self.sp2.axvline(self.ref_lines[self.counter],
+                                                             color='r', lw=1, ls='--'),
+                                            self.sp2.annotate(str(int(self.ref_lines[self.counter]+0.5)),
+                                                              (self.ref_lines[self.counter], self.ytext),
+                                                              rotation='vertical', size=11)])
+
+            if k == 'i':
+                self.show_lines[self.counter][0].set_lw(0)
+                self.show_lines[self.counter][1].set_visible(False)
+                self.counter += 1
+                if self.counter == len(self.ref_lines):
+                    self.sp1.text(0.35, 0.35, "\n  Complete: close  \n     this window \n",
+                                  transform=self.sp1.transAxes, size=22, bbox=dict(fc='w'))
+                    self.sp2.text(0.35, 0.35, "\n  Complete: close  \n     this window \n",
+                                  transform=self.sp2.transAxes, size=22, bbox=dict(fc='w'))
+                    pl.savetxt('initial_lambda_soln.dat', self.soln_data)
+                else:
+                    self.show_lines.append([self.sp2.axvline(self.ref_lines[self.counter],
+                                                             color='r', lw=1, ls='--'),
+                                            self.sp2.annotate(str(int(self.ref_lines[self.counter]+0.5)),
+                                                              (self.ref_lines[self.counter], self.ytext),
+                                                              rotation='vertical', size=11)])
+
+            if k == 'z':
+                self.zooms.append([self.sp1.axis()[:2], self.sp2.axis()[:2]])
+                axis = sp.axis()
+                dx = (axis[1] - axis[0])/10.
+                sp.set_xlim(x-dx, x+dx)
+
+            if k == 'a':
+                if len(self.zooms):
+                    self.sp1.set_xlim(self.zooms[-1][0])
+                    self.sp2.set_xlim(self.zooms[-1][1])
+                    self.zooms.pop(-1)
+
+            if k == 'r':
+                self.fig.clf()
+                self.soln_data = []
+                self.counter = 0
+
+                self.sp1 = self.fig.add_subplot(211)
+                self.sp2 = self.fig.add_subplot(212)
+                self.zooms = []
+
+                self.sp1.plot(self.xaxis, self.flux/max(self.flux))
+                self.sp1.set_ylim(-0.03, 1.2)
+                self.sp1.set_title('ArcLamp Spectrum: x = identify line,  i = skip line,  z/a = zoom in/out,  r = reset')
+                self.sp1.set_xlabel('Pixel')
+
+                self.sp2.plot(self.ref_spec[:,0], self.ref_spec[:,1]/max(self.ref_spec[:,1]))
+                self.sp2.set_ylim(-0.03, 1.2)
+                x0, x1, y0, y1 = self.sp2.axis()
+                self.ytext = y0 + (y1-y0)*0.85
+                self.show_lines = [[self.sp2.axvline(self.ref_lines[0], color='r', lw=1, ls='--'),
+                                    self.sp2.annotate(str(int(self.ref_lines[0]+0.5)),
+                                                      (self.ref_lines[0], self.ytext),
+                                                      rotation='vertical', size=11)]]
+                self.sp2.set_title('Reference Spectrum')
+                self.sp2.set_xlabel('Wavelength (Angstroms)')
+
+            pl.draw()
+
+    interactive_go = compspec(xaxis, first_fiber_spec, ref_spec, lines)
